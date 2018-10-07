@@ -41,96 +41,96 @@ dofile "bx.lua"
 dofile "bin2c.lua"
 dofile "lemon.lua"
 
-project "bx.test"
-	kind "ConsoleApp"
+-- project "bx.test"
+-- 	kind "ConsoleApp"
 
-	debugdir (path.join(BX_DIR, "tests"))
+-- 	debugdir (path.join(BX_DIR, "tests"))
 
-	removeflags {
-		"NoExceptions",
-	}
+-- 	removeflags {
+-- 		"NoExceptions",
+-- 	}
 
-	includedirs {
-		path.join(BX_DIR, "include"),
-		BX_THIRD_PARTY_DIR,
-	}
+-- 	includedirs {
+-- 		path.join(BX_DIR, "include"),
+-- 		BX_THIRD_PARTY_DIR,
+-- 	}
 
-	files {
-		path.join(BX_DIR, "tests/*_test.cpp"),
-		path.join(BX_DIR, "tests/*.h"),
-		path.join(BX_DIR, "tests/dbg.*"),
-	}
+-- 	files {
+-- 		path.join(BX_DIR, "tests/*_test.cpp"),
+-- 		path.join(BX_DIR, "tests/*.h"),
+-- 		path.join(BX_DIR, "tests/dbg.*"),
+-- 	}
 
-	links {
-		"bx",
-	}
+-- 	links {
+-- 		"bx",
+-- 	}
 
-	configuration { "vs* or mingw*" }
-		links {
-			"psapi",
-		}
+-- 	configuration { "vs* or mingw*" }
+-- 		links {
+-- 			"psapi",
+-- 		}
 
-	configuration { "android*" }
-		targetextension ".so"
-		linkoptions {
-			"-shared",
-		}
+-- 	configuration { "android*" }
+-- 		targetextension ".so"
+-- 		linkoptions {
+-- 			"-shared",
+-- 		}
 
-	configuration { "linux-*" }
-		links {
-			"pthread",
-		}
+-- 	configuration { "linux-*" }
+-- 		links {
+-- 			"pthread",
+-- 		}
 
-	configuration { "osx" }
-		links {
-			"Cocoa.framework",
-		}
+-- 	configuration { "osx" }
+-- 		links {
+-- 			"Cocoa.framework",
+-- 		}
 
-	configuration {}
+-- 	configuration {}
 
-	strip()
+-- 	strip()
 
-project "bx.bench"
-	kind "ConsoleApp"
+-- project "bx.bench"
+-- 	kind "ConsoleApp"
 
-	debugdir (path.join(BX_DIR, "tests"))
+-- 	debugdir (path.join(BX_DIR, "tests"))
 
-	includedirs {
-		path.join(BX_DIR, "include"),
-		BX_THIRD_PARTY_DIR,
-	}
+-- 	includedirs {
+-- 		path.join(BX_DIR, "include"),
+-- 		BX_THIRD_PARTY_DIR,
+-- 	}
 
-	files {
-		path.join(BX_DIR, "tests/*_bench.cpp"),
-		path.join(BX_DIR, "tests/*_bench.h"),
-		path.join(BX_DIR, "tests/dbg.*"),
-	}
+-- 	files {
+-- 		path.join(BX_DIR, "tests/*_bench.cpp"),
+-- 		path.join(BX_DIR, "tests/*_bench.h"),
+-- 		path.join(BX_DIR, "tests/dbg.*"),
+-- 	}
 
-	links {
-		"bx",
-	}
+-- 	links {
+-- 		"bx",
+-- 	}
 
-	configuration { "vs* or mingw*" }
-		links {
-			"psapi",
-		}
+-- 	configuration { "vs* or mingw*" }
+-- 		links {
+-- 			"psapi",
+-- 		}
 
-	configuration { "android*" }
-		targetextension ".so"
-		linkoptions {
-			"-shared",
-		}
+-- 	configuration { "android*" }
+-- 		targetextension ".so"
+-- 		linkoptions {
+-- 			"-shared",
+-- 		}
 
-	configuration { "linux-*" }
-		links {
-			"pthread",
-		}
+-- 	configuration { "linux-*" }
+-- 		links {
+-- 			"pthread",
+-- 		}
 
-	configuration { "osx" }
-		links {
-			"Cocoa.framework",
-		}
+-- 	configuration { "osx" }
+-- 		links {
+-- 			"Cocoa.framework",
+-- 		}
 
-	configuration {}
+-- 	configuration {}
 
-	strip()
+-- 	strip()

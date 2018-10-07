@@ -229,7 +229,7 @@
 #	elif defined(__MINGW32__) || defined(__MINGW64__)
 #		undef  BX_CRT_MINGW
 #		define BX_CRT_MINGW 1
-#	elif defined(__apple_build_version__) || defined(__ORBIS__) || defined(__EMSCRIPTEN__) || defined(__llvm__)
+#	elif defined(__apple_build_version__) || defined(__FreeBSD__) || defined(__ORBIS__) || defined(__EMSCRIPTEN__) || defined(__llvm__)
 #		undef  BX_CRT_LIBCXX
 #		define BX_CRT_LIBCXX 1
 #	endif //

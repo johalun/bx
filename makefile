@@ -12,6 +12,7 @@ all:
 	$(GENIE) --gcc=android-mips gmake
 	$(GENIE) --gcc=android-x86 gmake
 	$(GENIE) --gcc=mingw-gcc gmake
+	$(GENIE) --gcc=freebsd gmake
 	$(GENIE) --gcc=linux-gcc gmake
 	$(GENIE) --gcc=osx gmake
 	$(GENIE) --gcc=ios-arm gmake
@@ -42,6 +43,14 @@ android-x86-debug: .build/projects/gmake-android-x86
 android-x86-release: .build/projects/gmake-android-x86
 	make -R -C .build/projects/gmake-android-x86 config=release
 android-x86: android-x86-debug android-x86-release
+
+.build/projects/gmake-freebsd:
+	$(GENIE) --gcc=freebsd gmake
+freebsd-debug64: .build/projects/gmake-freebsd
+	gmake -R -C .build/projects/gmake-freebsd config=debug64
+freebsd-release64: .build/projects/gmake-freebsd
+	gmake -R -C .build/projects/gmake-freebsd config=release64
+freebsd: freebsd-debug64 freebsd-release64
 
 .build/projects/gmake-linux:
 	$(GENIE) --gcc=linux-gcc gmake
@@ -134,11 +143,17 @@ clean:
 SILENT ?= @
 
 UNAME := $(shell uname)
-ifeq ($(UNAME),$(filter $(UNAME),Linux GNU Darwin))
+ifeq ($(UNAME),$(filter $(UNAME),Linux GNU Darwin FreeBSD))
 ifeq ($(UNAME),$(filter $(UNAME),Darwin))
 OS=darwin
 BUILD_PROJECT_DIR=gmake-osx
 BUILD_OUTPUT_DIR=osx64_clang
+BUILD_TOOLS_CONFIG=release64
+EXE=
+else ifeq ($(UNAME),$(filter $(UNAME),FreeBSD))
+OS=bsd
+BUILD_PROJECT_DIR=gmake-freebsd
+BUILD_OUTPUT_DIR=freebsd64_clang
 BUILD_TOOLS_CONFIG=release64
 EXE=
 else
@@ -163,6 +178,12 @@ endif
 tools/bin/darwin/bin2c: .build/osx64_clang/bin/bin2cRelease
 	$(SILENT) cp $(<) $(@)
 
+.build/freebsd64_clang/bin/bin2cRelease: .build/projects/gmake-freebsd
+	$(SILENT) make -C .build/projects/gmake-freebsd bin2c config=$(BUILD_TOOLS_CONFIG)
+
+tools/bin/bsd/bin2c: .build/freebsd64_clang/bin/bin2cRelease
+	$(SILENT) cp $(<) $(@)
+
 .build/linux64_gcc/bin/bin2cRelease: .build/projects/gmake-linux
 	$(SILENT) make -C .build/projects/gmake-linux bin2c config=$(BUILD_TOOLS_CONFIG)
 
@@ -184,6 +205,12 @@ bin2c: tools/bin/$(OS)/bin2c$(EXE)
 tools/bin/darwin/lemon: .build/osx64_clang/bin/lemonRelease
 	$(SILENT) cp $(<) $(@)
 
+.build/freebsd64_clang/bin/lemonRelease: .build/projects/gmake-freebsd
+	$(SILENT) make -C .build/projects/gmake-freebsd lemon config=$(BUILD_TOOLS_CONFIG)
+
+tools/bin/bsd/lemon: .build/freebsd64_clang/bin/lemonRelease
+	$(SILENT) cp $(<) $(@)
+
 .build/linux64_gcc/bin/lemonRelease: .build/projects/gmake-linux
 	$(SILENT) make -C .build/projects/gmake-linux lemon config=$(BUILD_TOOLS_CONFIG)
 
@@ -203,7 +230,7 @@ lemon: tools/bin/$(OS)/lemon$(EXE) tools/bin/$(OS)/lempar.c
 
 tools: bin2c lemon
 
-dist: tools/bin/darwin/bin2c tools/bin/linux/bin2c tools/bin/windows/bin2c.exe
+dist: tools/bin/darwin/bin2c tools/bin/bsd/bin2c tools/bin/linux/bin2c tools/bin/windows/bin2c.exe
 
 .build/$(BUILD_OUTPUT_DIR)/bin/bx.testRelease$(EXE): .build/projects/$(BUILD_PROJECT_DIR)
 	$(SILENT) make -C .build/projects/$(BUILD_PROJECT_DIR) bx.test config=$(BUILD_TOOLS_CONFIG)

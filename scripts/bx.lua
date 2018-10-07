@@ -23,7 +23,7 @@ project "bx"
 			"BX_CONFIG_DEBUG=1",
 		}
 
-	configuration { "linux-*" }
+	configuration { "linux-* or freebsd" }
 		buildoptions {
 			"-fPIC",
 		}

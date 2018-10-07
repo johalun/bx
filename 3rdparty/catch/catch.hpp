@@ -2139,6 +2139,8 @@ namespace Catch {
 #  define CATCH_PLATFORM_MAC
 #elif  defined(__IPHONE_OS_VERSION_MIN_REQUIRED)
 #  define CATCH_PLATFORM_IPHONE
+#elif defined(__FreeBSD__) 
+#  define CATCH_PLATFORM_FREEBSD
 #elif defined(linux) || defined(__linux) || defined(__linux__)
 #  define CATCH_PLATFORM_LINUX
 #elif defined(WIN32) || defined(__WIN32__) || defined(_WIN32) || defined(_MSC_VER)
@@ -2171,6 +2173,14 @@ namespace Catch{
         #define CATCH_TRAP() __asm__("int $3\n" : : )
     #endif
 
+#elif defined(CATCH_PLATFORM_FREEBSD)
+    #if (defined(__i386) || defined(__x86_64))
+        #define CATCH_TRAP() __asm__("int $3\n" : : )
+    #else // Fall back to the generic way.
+        #include <signal.h>
+
+        #define CATCH_TRAP() raise(SIGTRAP)
+    #endif
 #elif defined(CATCH_PLATFORM_LINUX)
     // If we can use inline assembler, do it because this allows us to break
     // directly at the location of the failing check instead of breaking inside

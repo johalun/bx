@@ -258,6 +258,9 @@ function toolchain(_buildDir, _libDir)
 			location (path.join(_buildDir, "projects", _ACTION .. "-asmjs"))
 
 		elseif "freebsd" == _OPTIONS["gcc"] then
+			premake.gcc.cc  = "clang"
+			premake.gcc.cxx = "clang++"
+			premake.gcc.ar  = "ar"
 			location (path.join(_buildDir, "projects", _ACTION .. "-freebsd"))
 
 		elseif "ios-arm"   == _OPTIONS["gcc"]
