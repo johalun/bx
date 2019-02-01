@@ -1,13 +1,12 @@
 #
-# Copyright 2011-2018 Branimir Karadzic. All rights reserved.
+# Copyright 2011-2019 Branimir Karadzic. All rights reserved.
 # License: https://github.com/bkaradzic/bx#license-bsd-2-clause
 #
 
 GENIE=../bx/tools/bin/$(OS)/genie
 
 all:
-	$(GENIE) vs2012
-	$(GENIE) vs2013
+	$(GENIE) vs2017
 	$(GENIE) --gcc=android-arm gmake
 	$(GENIE) --gcc=android-mips gmake
 	$(GENIE) --gcc=android-x86 gmake
@@ -84,11 +83,8 @@ mingw-clang-release64: .build/projects/gmake-mingw-clang
 	make -R -C .build/projects/gmake-mingw-clang config=release64
 mingw-clang: mingw-clang-debug32 mingw-clang-release32 mingw-clang-debug64 mingw-clang-release64
 
-.build/projects/vs2012:
-	$(GENIE) vs2012
-
-.build/projects/vs2013:
-	$(GENIE) vs2013
+.build/projects/vs2017:
+	$(GENIE) vs2017
 
 .build/projects/gmake-osx:
 	$(GENIE) --gcc=osx gmake

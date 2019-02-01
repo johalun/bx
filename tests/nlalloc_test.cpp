@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -28,45 +28,13 @@ struct TinyStlAllocator
 #define TINYSTL_ALLOCATOR ::TinyStlAllocator
 #include <tinystl/vector.h>
 
-namespace tinystl
-{
-	template<typename T, typename Alloc = TINYSTL_ALLOCATOR>
-	class list : public vector<T, Alloc>
-	{
-	public:
-		void push_front(const T& _value)
-		{
-			this->insert(this->begin(), _value);
-		}
-
-		void pop_front()
-		{
-			this->erase(this->begin() );
-		}
-
-		void sort()
-		{
-			bx::quickSort(
-				  this->begin()
-				, uint32_t(this->end() - this->begin() )
-				, sizeof(T)
-				, [](const void* _a, const void* _b) -> int32_t {
-					const T& lhs = *(const T*)(_a);
-					const T& rhs = *(const T*)(_b);
-					return lhs < rhs ? -1 : 1;
-				});
-		}
-	};
-
-} // namespace tinystl
-
 namespace stl = tinystl;
 
 namespace bx
 {
 	struct Blk
 	{
-		static const uint64_t kInvalid = UINT64_MAX;
+		static constexpr uint64_t kInvalid = UINT64_MAX;
 
 		Blk()
 			: ptr(kInvalid)
@@ -98,8 +66,11 @@ namespace bx
 	class NonLocalAllocator
 	{
 	public:
+		static constexpr uint32_t kMinBlockSize = 16u;
+
 		NonLocalAllocator()
 		{
+			reset();
 		}
 
 		~NonLocalAllocator()
@@ -123,8 +94,8 @@ namespace bx
 
 			if (0 < m_free.size() )
 			{
-				Blk freeBlock = m_free.front();
-				m_free.pop_front();
+				Blk freeBlock = m_free.back();
+				m_free.pop_back();
 				return freeBlock;
 			}
 
@@ -133,13 +104,13 @@ namespace bx
 
 		Blk alloc(uint32_t _size)
 		{
-			_size = max(_size, 16u);
+			_size = max(_size, kMinBlockSize);
 
 			for (FreeList::iterator it = m_free.begin(), itEnd = m_free.end(); it != itEnd; ++it)
 			{
 				if (it->size >= _size)
 				{
-					uint64_t ptr = it->ptr;
+					const uint64_t ptr = it->ptr;
 
 					if (it->size != _size)
 					{
@@ -152,6 +123,7 @@ namespace bx
 					}
 
 					m_used += _size;
+
 					return Blk{ ptr, _size };
 				}
 			}
@@ -163,12 +135,22 @@ namespace bx
 		void free(const Blk& _blk)
 		{
 			m_used -= _blk.size;
-			m_free.push_front(_blk);
+			m_free.push_back(_blk);
+			compact();
 		}
 
 		bool compact()
 		{
-			m_free.sort();
+			bx::quickSort(
+				  m_free.begin()
+				, uint32_t(m_free.end() - m_free.begin() )
+				, sizeof(Blk)
+				, [](const void* _a, const void* _b) -> int32_t
+				{
+					const Blk& lhs = *(const Blk*)(_a);
+					const Blk& rhs = *(const Blk*)(_b);
+					return lhs < rhs ? -1 : 1;
+				});
 
 			for (FreeList::iterator it = m_free.begin(), next = it, itEnd = m_free.end(); next != itEnd;)
 			{
@@ -193,10 +175,13 @@ namespace bx
 		}
 
 	private:
-		typedef stl::list<Blk> FreeList;
+		typedef stl::vector<Blk> FreeList;
 		FreeList m_free;
 		uint32_t m_used;
 	};
+
+	constexpr uint32_t NonLocalAllocator::kMinBlockSize;
+
 } // namespace bx
 
 TEST_CASE("nlalloc")
@@ -212,6 +197,16 @@ TEST_CASE("nlalloc")
 	blk = nla.alloc(100);
 	REQUIRE(isValid(blk) );
 
+	bx::Blk blk2 = nla.alloc(1);
+	REQUIRE(!isValid(blk2) );
+
 	nla.free(blk);
+	REQUIRE(0 == nla.getUsed() );
+
+	blk2 = nla.alloc(1);
+	REQUIRE(isValid(blk2) );
+	REQUIRE(bx::NonLocalAllocator::kMinBlockSize == nla.getUsed() );
+
+	nla.free(blk2);
 	REQUIRE(0 == nla.getUsed() );
 }

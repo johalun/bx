@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2018 Branimir Karadzic. All rights reserved.
+ * Copyright 2010-2019 Branimir Karadzic. All rights reserved.
  * License: https://github.com/bkaradzic/bx#license-bsd-2-clause
  */
 
@@ -51,8 +51,8 @@ namespace bx
 
 		virtual int32_t write(const void* _data, int32_t _size, Error* _err) override
 		{
-			BX_UNUSED(_data, _size, _err);
-			return 0;
+			BX_UNUSED(_data, _err);
+			return _size;
 		}
 	};
 
